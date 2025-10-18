@@ -6,15 +6,15 @@ Package ***ci***
 <!-- badges: start -->
 
 [![GitHub
-version](https://img.shields.io/badge/GitHub-0.0.1-brightgreen.svg)](https://github.com/GegznaV/ci)
-[![R-CMD-check](https://github.com/GegznaV/ci/workflows/R-CMD-check/badge.svg)](https://github.com/GegznaV/ci/actions)
+version](https://img.shields.io/badge/GitHub-0.0.1-brightgreen.svg)](https://github.com/mokymai/ci)
+[![R-CMD-check](https://github.com/mokymai/ci/workflows/R-CMD-check/badge.svg)](https://github.com/mokymai/ci/actions)
 [![Updated-on](https://img.shields.io/badge/Updated%20on-2025--10--18-yellowgreen.svg)](/commits/master)
 <!-- badges: end -->
 
 Convenience functions for calculating confidence intervals (CI).
 
 Report bugs, issues, and desired improvements at
-<https://github.com/GegznaV/ci/issues>. Please specify your operating
+<https://github.com/mokymai/ci/issues>. Please specify your operating
 system.
 
 # Installation
@@ -30,7 +30,7 @@ install.packages("ci")
 Installation from a CRAN-like repository:
 
 ``` r
-repos <- c("https://GegznaV.github.io/download/", getOption("repos"))
+repos <- c("https://mokymai.github.io/download/", getOption("repos"))
 install.packages("ci", repos = repos)
 ```
 
@@ -45,7 +45,7 @@ Install from GitHub:
 
 ``` r
 if (!require(remotes)) install.packages("remotes")
-remotes::install_github("GegznaV/ci", dependencies = TRUE)
+remotes::install_github("mokymai/ci", dependencies = TRUE)
 ```
 
 Note! To install from GitHub on Windows, you need the RTools.
