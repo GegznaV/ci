@@ -20,10 +20,11 @@ Sys.setenv(R_REMOTES_NO_ERRORS_FROM_WARNINGS = "true")
 
 
 <!-- badges: start -->
+[![CRAN status](https://www.r-pkg.org/badges/version/ci)](https://CRAN.R-project.org/package=ci)
 [![GitHub version](https://img.shields.io/badge/GitHub-`r packageVersion("ci")`-brightgreen.svg)](https://github.com/GegznaV/ci)
 [![R-CMD-check](https://github.com/GegznaV/ci/workflows/R-CMD-check/badge.svg)](https://github.com/GegznaV/ci/actions)
-[![Updated-on](https://img.shields.io/badge/Updated%20on-`r gsub('-', '--', Sys.Date())`-yellowgreen.svg)](/commits/master)
 [![Codecov test coverage](https://codecov.io/gh/GegznaV/ci/graph/badge.svg)](https://app.codecov.io/gh/GegznaV/ci)
+[![Updated-on](https://img.shields.io/badge/Updated%20on-`r gsub('-', '--', Sys.Date())`-yellowgreen.svg)](/commits/master)
 <!-- badges: end -->
 
 
