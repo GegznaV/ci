@@ -37,20 +37,6 @@ install.packages("ci")
 
 ## Development version
 
-Installation from a CRAN-like repository:
-
-``` r
-repos <- c("https://mokymai.github.io/download/", getOption("repos"))
-install.packages("ci", repos = repos)
-```
-
-<details>
-
-<summary>
-
-Install from GitHub
-</summary>
-
 Install from GitHub:
 
 ``` r
@@ -59,8 +45,6 @@ remotes::install_github("GegznaV/ci", dependencies = TRUE)
 ```
 
 Note! To install from GitHub on Windows, you need the RTools.
-
-</details>
 
 # Examples
 
