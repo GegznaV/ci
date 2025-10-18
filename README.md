@@ -2,7 +2,6 @@ Package ***ci***
 ================
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-
 <!-- badges: start -->
 
 [![GitHub
@@ -43,9 +42,7 @@ install.packages("ci", repos = repos)
 ```
 
 <details>
-
 <summary>
-
 Install from GitHub
 </summary>
 
