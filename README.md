@@ -9,13 +9,21 @@ Package ***ci***
 version](https://img.shields.io/badge/GitHub-0.0.1-brightgreen.svg)](https://github.com/GegznaV/ci)
 [![R-CMD-check](https://github.com/GegznaV/ci/workflows/R-CMD-check/badge.svg)](https://github.com/GegznaV/ci/actions)
 [![Updated-on](https://img.shields.io/badge/Updated%20on-2025--10--18-yellowgreen.svg)](/commits/master)
+[![Codecov test
+coverage](https://codecov.io/gh/GegznaV/ci/graph/badge.svg)](https://app.codecov.io/gh/GegznaV/ci)
 <!-- badges: end -->
 
-Convenience functions for calculating confidence intervals (CI).
+Package `ci` is an educational package providing intuitive functions for
+calculating confidence intervals (CI) for various statistical
+parameters. Designed primarily for teaching and learning about
+statistical inference (particularly confidence intervals). Offers
+user-friendly wrappers around established methods for proportions,
+means, and bootstrap-based intervals. Integrates seamlessly with
+Tidyverse workflows, making it ideal for classroom demonstrations and
+student exercises.
 
 Report bugs, issues, and desired improvements at
-<https://github.com/GegznaV/ci/issues>. Please specify your operating
-system.
+<https://github.com/GegznaV/ci/issues>.
 
 # Installation
 
@@ -30,7 +38,7 @@ install.packages("ci")
 Installation from a CRAN-like repository:
 
 ``` r
-repos <- c("https://GegznaV.github.io/download/", getOption("repos"))
+repos <- c("https://mokymai.github.io/download/", getOption("repos"))
 install.packages("ci", repos = repos)
 ```
 
