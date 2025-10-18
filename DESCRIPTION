@@ -14,7 +14,7 @@ Description: An educational package providing intuitive functions for calculatin
     Offers user-friendly wrappers around established methods for proportions, 
     means, and bootstrap-based intervals. Integrates seamlessly with Tidyverse 
     workflows, making it ideal for classroom demonstrations and student exercises.
-License: MIT + file LICENSE
+License: GPL (>= 3)
 URL: https://github.com/GegznaV/ci
 BugReports: https://github.com/GegznaV/ci/issues
 Encoding: UTF-8
