@@ -1,0 +1,91 @@
+---
+title: "Package **_ci_**"
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r README-0, include=FALSE}
+options(bio.local_list = TRUE)
+
+options(
+  repos = "https://cran.rstudio.com/",
+  pkgType = "both",
+  install.packages.check.source = "yes",
+  install.packages.compile.from.source = "always"
+)
+
+Sys.setenv(R_REMOTES_NO_ERRORS_FROM_WARNINGS = "true")
+```
+
+
+<!-- badges: start -->
+[![GitHub version](https://img.shields.io/badge/GitHub-`r packageVersion("ci")`-brightgreen.svg)](https://github.com/GegznaV/ci)
+[![R-CMD-check](https://github.com/GegznaV/ci/workflows/R-CMD-check/badge.svg)](https://github.com/GegznaV/ci/actions)
+[![Updated-on](https://img.shields.io/badge/Updated%20on-`r gsub('-', '--', Sys.Date())`-yellowgreen.svg)](/commits/master)
+<!-- badges: end -->
+
+
+
+Convenience functions for calculating confidence intervals (CI).
+
+
+Report bugs, issues, and desired improvements at https://github.com/GegznaV/ci/issues.
+Please specify your operating system.
+
+
+# Installation
+
+Installation from a CRAN:
+```{r README-1, eval=FALSE}
+install.packages("ci")
+```
+
+## Development version
+
+Installation from a CRAN-like repository:
+
+```{r README-1a, eval=FALSE}
+repos <- c("https://GegznaV.github.io/download/", getOption("repos"))
+install.packages("ci", repos = repos)
+```
+
+
+<details>
+<summary>Install from GitHub</summary>
+
+Install from GitHub:
+
+```{r README-2, eval=FALSE}
+if (!require(remotes)) install.packages("remotes")
+remotes::install_github("GegznaV/ci", dependencies = TRUE)
+```
+
+Note! To install from GitHub on Windows, you need the RTools.
+
+</details>
+
+
+# Examples
+
+```{r README-5, paged.print=FALSE, eval=FALSE}
+ci::ci_binom(x = 20, n = 101)
+```
+Or:
+```{r README-6, paged.print=FALSE, eval=FALSE}
+library(ci)
+ci_binom(x = 20, n = 101)
+```
+
+
+```{r README-7, paged.print=FALSE, eval=FALSE}
+library(tidyverse)
+library(ci)
+
+data(npk, package = "datasets")
+head(npk)
+
+npk |>
+  group_by(N, P, K) |> 
+  ci_mean_t(yield)
+```
