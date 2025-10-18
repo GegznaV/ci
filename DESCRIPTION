@@ -1,0 +1,35 @@
+Package: ci
+Type: Package
+Title: Confidence Intervals (CI)
+Version: 0.0.1
+Authors@R: 
+    person("Vilmantas", "Gegzna", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0002-9500-5167"),
+           email = "GegznaV@gmail.com"
+    )
+Description: An educational package providing intuitive functions for calculating 
+    confidence intervals (CI) for various statistical parameters. Designed 
+    primarily for teaching and learning about statistical inference
+    (particularly confidence intervals). 
+    Offers user-friendly wrappers around established methods for proportions, 
+    means, and bootstrap-based intervals. Integrates seamlessly with Tidyverse 
+    workflows, making it ideal for classroom demonstrations and student exercises.
+License: MIT + file LICENSE
+URL: https://github.com/GegznaV/ci
+BugReports: https://github.com/GegznaV/ci/issues
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.3
+Depends: R (>= 4.1.0)
+Imports:
+  DescTools,
+  dplyr,
+  tidyr,
+  purrr,
+  forcats,
+  tibble,
+  checkmate
+Suggests:
+  testthat (>= 3.0.0)
+Config/testthat/edition: 3
