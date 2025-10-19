@@ -1,5 +1,5 @@
 ---
-title: "Package **_ci_**"
+title: "Package **_ci_**: Confidence Intervals for Education"
 output: github_document
 ---
 
