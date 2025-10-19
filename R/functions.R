@@ -53,9 +53,9 @@
 #' # Method B: mean = 82, SD = 7, n = 28 students
 #' # Method C: mean = 75, SD = 9, n = 32 students
 #' mean_val <- c(78, 82, 75)
-#' std_dev  <- c(8, 7, 9)
-#' n        <- c(30, 28, 32)
-#' group    <- c("Method A", "Method B", "Method C")
+#' std_dev <- c(8, 7, 9)
+#' n <- c(30, 28, 32)
+#' group <- c("Method A", "Method B", "Method C")
 #'
 #' ci_mean_t_stat(mean_val, std_dev, n, group)
 #'
@@ -85,7 +85,6 @@
 #' @importFrom stats qt
 #' @export
 ci_mean_t_stat <- function(mean_, sd_, n, group = "", conf.level = 0.95) {
-
   Q <- conf.level
 
   # Apply formula with t coefficient:
@@ -180,7 +179,6 @@ ci_mean_t_stat <- function(mean_, sd_, n, group = "", conf.level = 0.95) {
 #' @export
 
 ci_mean_t <- function(.data, x, conf.level = 0.95, ...) {
-
   mean_ci <- function(x) {
     # Result must be a data frame
     DescTools::MeanCI(x, conf.level = conf.level, ...) |>
@@ -281,14 +279,14 @@ ci_binom <- function(x, n, method = "modified wilson", conf.level = 0.95, ...) {
   len_n <- length(n)
   checkmate::assert_integerish(x, lower = 0, min.len = 1)
   checkmate::assert_integerish(n, lower = 0, min.len = 1)
-  
+
   if (!len_x %in% c(1, max(len_x, len_n))) {
     stop("length(x) must be either 1 or match length(n).")
   }
   if (!len_n %in% c(1, max(len_x, len_n))) {
     stop("length(n) must be either 1 or match length(x).")
   }
-  
+
   # Check that x <= n for all values
   if (any(x > n)) {
     stop("All values of x must be less than or equal to corresponding n values.")
@@ -375,7 +373,6 @@ ci_binom <- function(x, n, method = "modified wilson", conf.level = 0.95, ...) {
 #' outcomes <- c("Poor" = 8, "Fair" = 22, "Good" = 45, "Excellent" = 35)
 #' ci_multinom(outcomes)
 #' # Look for non-overlapping CIs to identify categories that differ significantly
-#'
 #'
 #' @export
 
@@ -534,7 +531,6 @@ ci_multinom <- function(x, method = "goodman", conf.level = 0.95,
 #' @export
 
 ci_boot <- function(.data, x, y = NULL, conf.level = 0.95, ...) {
-
   ci_function <- function(x, y) {
     # Result must be a data frame
     DescTools::BootCI(x = x, y = y, conf.level = conf.level, ...) |>
@@ -546,11 +542,12 @@ ci_boot <- function(.data, x, y = NULL, conf.level = 0.95, ...) {
 
   .data |>
     tidyr::nest(data = c(dplyr::everything(), -dplyr::group_vars(.data))) |>
-    dplyr::mutate(ci =
-      purrr::map(data, ~ ci_function(
-        x = dplyr::pull(., {{ x }}),
-        y = if (missing_y) NULL else dplyr::pull(., {{ y }})
-      ))
+    dplyr::mutate(
+      ci =
+        purrr::map(data, ~ ci_function(
+          x = dplyr::pull(., {{ x }}),
+          y = if (missing_y) NULL else dplyr::pull(., {{ y }})
+        ))
     ) |>
     dplyr::select(-data) |>
     tidyr::unnest(ci) |>

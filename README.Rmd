@@ -80,6 +80,6 @@ data(npk, package = "datasets")
 head(npk)
 
 npk |>
-  group_by(N, P, K) |> 
+  group_by(N, P, K) |>
   ci_mean_t(yield)
 ```
