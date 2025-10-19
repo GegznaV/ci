@@ -59,7 +59,7 @@ the `ci` package to calculate and visualize them.
 ## Functions in This Package
 
 | Function          | Purpose           | Input Data        | Output Data       |
-|-------------------|:-----------------:|:-----------------:|:-----------------:|
+|-------------------|-------------------|-------------------|-------------------|
 | `ci_binom()`      | Proportion CI     | Summary statistics (frequencies) | Data frame |
 | `ci_multinom()`   | Proportion CI     | Summary statistics (frequencies) | Data frame |
 | `ci_mean_t()`     | Mean CI           | Data frame        | Data frame        |
@@ -441,7 +441,7 @@ The main arguments of `ci_boot()`{.r} are:
 - You want simpler, more robust results
 
 
-⚠️ **Advice**: Bootstrap methods give slightly different results on the same data in different runs due to their random nature. For reproducibility, set a random seed using `set.seed()`{.r} before calling `ci_boot()`{.r}.
+💡 **Advice**: Bootstrap methods give slightly different results on the same data in different runs due to their random nature. For reproducibility, set a random seed using `set.seed()`{.r} before calling `ci_boot()`{.r}.
 
 
 ## CI for Single-Variable Statistics
