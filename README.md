@@ -1,4 +1,4 @@
-Package ***ci***
+Package ***ci***: Confidence Intervals for Education
 ================
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
@@ -12,7 +12,7 @@ version](https://img.shields.io/badge/GitHub-0.0.1-brightgreen.svg)](https://git
 [![R-CMD-check](https://github.com/GegznaV/ci/workflows/R-CMD-check/badge.svg)](https://github.com/GegznaV/ci/actions)
 [![Codecov test
 coverage](https://codecov.io/gh/GegznaV/ci/graph/badge.svg)](https://app.codecov.io/gh/GegznaV/ci)
-[![Updated-on](https://img.shields.io/badge/Updated%20on-2025--10--18-yellowgreen.svg)](/commits/master)
+[![Updated-on](https://img.shields.io/badge/Updated%20on-2025--10--19-yellowgreen.svg)](/commits/master)
 <!-- badges: end -->
 
 Package `ci` is an educational package providing intuitive functions for
