@@ -63,9 +63,9 @@ ci_mean_t_stat(362, 35, 100)
 # Method B: mean = 82, SD = 7, n = 28 students
 # Method C: mean = 75, SD = 9, n = 32 students
 mean_val <- c(78, 82, 75)
-std_dev  <- c(8, 7, 9)
-n        <- c(30, 28, 32)
-group    <- c("Method A", "Method B", "Method C")
+std_dev <- c(8, 7, 9)
+n <- c(30, 28, 32)
+group <- c("Method A", "Method B", "Method C")
 
 ci_mean_t_stat(mean_val, std_dev, n, group)
 

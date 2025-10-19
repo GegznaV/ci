@@ -84,5 +84,4 @@ outcomes <- c("Poor" = 8, "Fair" = 22, "Good" = 45, "Excellent" = 35)
 ci_multinom(outcomes)
 # Look for non-overlapping CIs to identify categories that differ significantly
 
-
 }
