@@ -2,7 +2,6 @@ Package ***ci***: Confidence Intervals for Education
 ================
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-
 <!-- badges: start -->
 
 [![CRAN
@@ -67,6 +66,6 @@ data(npk, package = "datasets")
 head(npk)
 
 npk |>
-  group_by(N, P, K) |> 
+  group_by(N, P, K) |>
   ci_mean_t(yield)
 ```
