@@ -1,0 +1,690 @@
+---
+title: "Introduction to `ci`: Confidence Intervals for Education"
+author: "Vilmantas Gegzna"
+date: "`r Sys.Date()`"
+output:
+  rmarkdown::html_vignette:
+    toc: true
+vignette: >
+  %\VignetteIndexEntry{Introduction to `ci`: Confidence Intervals for Education}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 5
+)
+```
+
+```{r setup, message=FALSE, warning=FALSE}
+library(ci)
+library(dplyr)
+```
+
+# Abbreviations {-}
+
+- CI -- Confidence Interval
+- M -- Mean
+- SD -- Standard Deviation
+- n -- Sample Size
+- Prop -- Proportion
+- IQR -- Interquartile Range
+- BCa -- Bias-Corrected and Accelerated (a bootstrap CI method)
+
+
+# About the Package
+
+Package `ci` (v`r as.character(packageVersion("ci"))`) is an educational package 
+providing intuitive functions for calculating confidence intervals (CI) for 
+various statistical parameters. Designed primarily for teaching and learning 
+about statistical inference (particularly confidence intervals), the package 
+offers user-friendly wrappers around established methods for:
+
+- **Proportions** (binary and multinomial)
+- **Means** (from data or descriptive statistics)
+- **Bootstrap-based intervals** (for any statistic)
+
+All functions integrate seamlessly with Tidyverse workflows, making them ideal for 
+classroom demonstrations and student exercises.
+
+This vignette will introduce you to the concept of CIs and show you how to use
+the `ci` package to calculate and visualize them.
+
+
+## Functions in This Package
+
+| Function          | Purpose           | Input Data        | Output Data       |
+|-------------------|:-----------------:|:-----------------:|:-----------------:|
+| `ci_binom()`      | Proportion CI     | Summary statistics (frequencies) | Data frame |
+| `ci_multinom()`   | Proportion CI     | Summary statistics (frequencies) | Data frame |
+| `ci_mean_t()`     | Mean CI           | Data frame        | Data frame        |
+| `ci_mean_t_stat()`| Mean CI           | Summary statistics (M, SD, n)    | Data frame |
+| `ci_boot()`       | Any statistic CI  | Data frame        | Data frame |
+
+
+## Quick Reference
+
+The most common use case examples:
+
+```{r, eval=FALSE}
+# Binomial CI: two categories (e.g., mutant/wild-type)
+ci_binom(x = 54, n = 80)
+
+# Multinomial CI: 3+ categories (e.g., blood types)
+ci_multinom(c("A" = 20, "B" = 35, "AB" = 25, "O" = 15))
+
+# Mean CI based on data: average with groups
+data |>
+  group_by(group_var) |>
+  ci_mean_t(numeric_var)
+
+# Mean CI based on summary statistics (mean, SD, n): e.g., literature values
+ci_mean_t_stat(mean_ = 75, sd_ = 10, n = 25)
+
+# Any statistic (median, correlation, etc.)
+data |> ci_boot(var1, var2, FUN = cor, R = 1000)
+```
+
+## Getting Help
+
+- Report bugs: <https://github.com/GegznaV/ci/issues>
+- Package documentation: `?ci` or `help(package = "ci")`
+- Function help: `?ci::ci_mean_t`, `?ci::ci_binom`, etc.
+- For more statistical background, consult introductory statistics textbooks
+
+
+# The Basics of Confidence Intervals
+
+## What is a Confidence Interval?
+
+**Confidence interval** (**CI**) is a fundamental concept in statistics, providing a range of values that likely contain the true population parameter. They help quantify the uncertainty associated with sample estimates.
+
+Imagine you want to know the average height of all students in your university. You can't measure everyone, so you measure 100 students and find their average height is 170 cm. But would a different group of 100 students give exactly the same average? Probably not.
+
+A **confidence interval** gives you a range of plausible values for the true population average. Instead of saying "the average is 170 cm," you might say "I'm 95% confident the true average is between 168 cm and 172 cm."
+
+
+## Key Concepts
+
+**Population vs Sample:**
+
+- **Population**: Everyone or everything you want to know about (all organisms in a species, all cells in a tissue)
+- **Sample**: The group you actually study (your 100 organisms, your cultured cells)
+
+**Parameter vs Statistic:**
+
+- **Parameter**: The true value in the population (unknown)
+- **Statistic**: What you calculate from your sample (known)
+
+**Confidence Level:**
+
+- **95% confidence**: If you repeated your study 100 times, about 95 of your confidence intervals would contain the true population value.
+- Common levels: 90%, 95%, 99%
+- Higher confidence = wider intervals
+
+**Key Point**: The interval either contains the true value or it doesn't. The "95%" refers to how often the method works, not the probability for any single interval.
+
+
+## What Affects Confidence Interval Width?
+
+1. **Sample size**: Larger samples → narrower intervals (more precise)
+2. **Confidence level**: Higher confidence → wider intervals
+3. **Data variability**: More spread in data → wider intervals
+
+
+## Terms You Should Know
+
+- **CI**: Confidence Interval
+- **Proportion**: Fraction with a certain characteristic (e.g., 60% of cells express a marker)
+- **Binary**: Two categories (yes/no, mutant/wild-type)
+- **Multinomial**: Three or more categories (blood types A/B/AB/O)
+- **Bootstrap**: A computer method that resamples your data to estimate uncertainty
+
+
+## Common Mistakes to Avoid
+
+❌ **Wrong**: "95% probability the true value is in this interval"  
+✅ **Right**: "We're 95% *confident* the true value is in this interval"
+
+❌ **Wrong**: Making intervals narrower by changing confidence level  
+✅ **Right**: Choose confidence level before calculating (usually 95%)
+
+
+## Practical Tips
+
+**Choosing Confidence Level:**
+
+- **95%** is standard in most fields
+- **99%** for critical decisions (clinical trials, safety studies)
+- **90%** sometimes used for preliminary or exploratory studies
+- **Choose before** calculating, not after!
+
+**Interpreting Results:**
+
+- **Overlapping intervals**: Difference might not be meaningful
+- **Non-overlapping intervals**: Likely meaningful difference
+- **Width matters**: Narrow intervals are more informative
+- **Context matters**: Statistical difference is not the same as practical/biological importance
+
+**Sample Size Planning:**
+
+- Larger samples give more precise estimates
+- But there are diminishing returns
+- Consider cost vs precision tradeoffs
+
+
+# CI of Proportion
+
+## Binomial Proportions: Two Categories
+
+Binomial proportion CI measures the uncertainty around a proportion in binary outcomes (i.e., two categories like mutant/wild-type, diseased/healthy, success/failure, yes/no).
+
+To calculate confidence intervals in this case:
+
+1. Create a frequency table of values.
+2. Use frequency of value of interest as `x` and total `n` as input to `ci_binom()`.
+
+**Scenario**: You investigate 80 *Drosophila* specimens (`n = 80`) and 54 have no mutation (`x = 54`).
+
+```{r}
+# 54 out of 80 Drosophila are mutation-free
+ci_binom(x = 54, n = 80)
+```
+
+**Interpretation**: We are 95% confident that between 56.6% and 76.8% of the population are mutation-free.
+
+
+### Effect of Sample Size
+
+Let's simulate results with same proportion (67.5%) but different sample sizes:
+
+```{r, paged.print=FALSE}
+ci_n1 <- ci_binom(x = 54, n = 80) # Small sample
+ci_n2 <- ci_binom(x = 135, n = 200) # Larger sample
+ci_n3 <- ci_binom(x = 675, n = 1000) # Even larger sample
+```
+
+Now let's merge all the results and calculate difference between upper and lower CI bounds:
+
+```{r}
+bind_rows(ci_n1, ci_n2, ci_n3) |>
+  mutate(diff_upr_lwr = round(upr.ci - lwr.ci, digits = 3))
+```
+
+💡 **Notice**: Larger samples give narrower (more precise) intervals.
+This is true not only for proportions but also for means and other statistics.
+
+
+### Effect of Confidence Levels
+
+Let's see how confidence level affects interval width:
+
+```{r}
+ci_q1 <- ci_binom(x = 54, n = 80, conf.level = 0.90) # Less confident, narrower
+ci_q2 <- ci_binom(x = 54, n = 80, conf.level = 0.95) # Standard
+ci_q3 <- ci_binom(x = 54, n = 80, conf.level = 0.99) # More confident, wider
+```
+
+```{r}
+bind_rows(ci_q1, ci_q2, ci_q3) |>
+  mutate(diff_upr_lwr = round(upr.ci - lwr.ci, digits = 3))
+```
+
+💡 **Notice**: Higher confidence levels give wider intervals.
+
+⚠️ This is just an educational example. Always choose the confidence level based on your study design before calculating CIs.
+
+
+## Multinomial Proportions: Several Categories
+
+Multinomial proportion CI measures uncertainty around proportions in categorical outcomes with 3 or more categories (e.g., A/B/AB/O blood types, eye colors, genotypes).
+
+In this case:
+
+1. Create a frequency table of values.
+2. Use frequencies as input to `ci_multinom()`.
+
+
+**Scenario**: Blood type distribution in patients with a certain medical condition.
+
+```{r}
+# Blood type distribution
+blood_types <- c("A" = 20, "B" = 35, "AB" = 25, "O" = 15)
+ci_multinom(blood_types)
+```
+
+**Scenario**: You survey lab members about their preferred method of commuting to the university.
+
+```{r}
+# Transportation preferences
+c("Car" = 20, "Bus" = 45, "Bike" = 15, "Walk" = 20) |>
+  ci_multinom(method = "goodman")
+```
+
+**Interpretation**: We're 95% confident that the true proportion of people who prefer taking the bus is between 32.7% and 57.7%.
+
+In this case, simultaneous CIs are calculated. This means that CIs are calculated for each category at once, ensuring that the overall confidence level (e.g., 95%) is maintained across all categories.
+
+
+# CI of Mean (Average)
+
+## Mean CI: From Data
+
+To calculate confidence intervals for means directly from data frames, use `ci_mean_t()`{.r}.
+
+
+### Overall Mean (No Groups)
+
+**Scenario**: You are investigating crop yield.
+
+```{r}
+# Using built-in dataset as example
+data(npk, package = "datasets")
+head(npk, n = 3)
+```
+
+```{r}
+# Average crop yield (overall)
+npk |>
+  ci_mean_t(yield)
+```
+
+**Interpretation**: We're 95% confident the true average yield is between 51.9 and 56.9.
+
+
+### Comparing Groups
+
+**Scenario**: You are investigating crop yield in different conditions (with/without fertilizers).
+
+```{r}
+# Compare yields with and without nitrogen fertilizer
+npk |>
+  group_by(N) |>
+  ci_mean_t(yield)
+```
+
+Look at the confidence intervals: if they don't overlap, it suggests a potential difference between groups.
+
+
+```{r}
+# Multiple grouping factors
+npk |>
+  group_by(N, P, K) |>
+  ci_mean_t(yield)
+```
+
+<br>
+
+**Scenario:** Iris flower measurements.
+
+```{r}
+data(iris, package = "datasets")
+head(iris, n = 3)
+```
+
+```{r}
+# Petal length by flower species
+iris |>
+  group_by(Species) |>
+  ci_mean_t(Petal.Length)
+```
+
+**Interpretation**: The results suggest that the three species have clearly different petal lengths (no overlapping intervals).
+
+
+## Mean CI: From Summary Statistics
+
+When you only have descriptive statistics (from literature, reports, etc.), you may use them directly.
+
+
+### Single Group
+
+**Scenario**: You read a study that reports "mean = 75, SD = 10, n = 25" but doesn't give confidence intervals.
+
+```{r}
+# Calculate CI from reported statistics
+ci_mean_t_stat(mean_ = 75, sd_ = 10, n = 25)
+```
+
+### Comparing Multiple Groups
+
+**Scenario:** You compare 3 studies.
+
+You may enter data as vectors:
+
+```{r}
+# Three enzyme activity measurements
+mean_val <- c(78, 82, 75)
+std_dev <- c(8, 7, 9)
+n <- c(30, 28, 32)
+group <- c("Enzyme A", "Enzyme B", "Enzyme C")
+
+ci_mean_t_stat(mean_val, std_dev, n, group)
+```
+
+You may enter data as a data frame too. Then use either `$` or `with()`{.r} based syntax:
+
+```{r}
+# Three different treatment conditions from literature
+treatments <-
+  tibble(
+    treatment = c("Control", "Low dose", "High dose"),
+    mean_response = c(78, 82, 75),
+    sd = c(8, 7, 9),
+    n = c(30, 28, 32)
+  )
+
+treatments |>
+  with(ci_mean_t_stat(mean_response, sd, n, treatment))
+```
+
+
+### Exploring Sample Size Effects
+
+```{r}
+# Same mean and SD but four different sample sizes
+ci_mean_t_stat(mean_ = 75, sd_ = 10, n = c(10, 25, 50, 100))
+```
+
+Larger samples yield narrower (more precise) confidence intervals.
+Doubling sample size doesn't halve interval width: the relationship is not linear.
+
+
+# Bootstrap Confidence Intervals
+
+Bootstrapping methods are based on resampling your data with replacement to create many "bootstrap samples." For each sample, the statistic of interest is calculated. The distribution of these statistics is then used to estimate confidence intervals.
+
+Bootstrap is useful when:
+
+- Your data isn't normally distributed
+- You want CIs for statistics other than the mean (median, correlation, etc.)
+- You don't want to make assumptions about data distribution
+
+⚠️ **Warning**: Bootstrap needs adequate sample sizes (not fewer than 20 per group, preferably 30+ per group).
+
+The main arguments of `ci_boot()`{.r} are:
+
+- `data`: Your data frame. Usually piped in using `%>%`{.r} or `|>`{.r}.
+- `x`, `y`: One or two unquoted variable names to use (`y` is optional).
+    - For single-variable statistics, provide one variable.
+    - For variable-pair statistics, provide two variables.
+- `FUN`: The function to compute the statistic (e.g., `median`, `cor`, etc.). 
+    Use no parentheses after the function name (e.g., `FUN = median`, 
+    not `FUN = median()`).
+- `...`: Additional arguments to pass to `FUN` (e.g., `method = "pearson"` 
+    for `cor()`{.r}).
+- `R`: Number of bootstrap resamples (e.g., 1000):
+    - Real-life scenarios usually require 1000-10000 resamples.
+    - 3000 is often recommended as a first choice.
+    - Higher `R` gives more accurate CIs but takes longer to compute.
+    - Use 5000+ for more accuracy if time allows.
+- `bci.method`: Bootstrap CI method:
+    - `"bca"` for Bias-Corrected and Accelerated (recommended default)
+    - `"perc"` for Percentile method
+    - Other methods as supported by [DescTools::boot.ci()].
+
+
+**Use BCa** method when:
+
+- You have adequate sample size (30+ per group or at least 20 per group)
+- You want the most accurate intervals
+
+**Use percentile** method when:
+
+- You have small samples
+- BCa fails or takes too long
+- You want simpler, more robust results
+
+
+⚠️ **Advice**: Bootstrap methods give slightly different results on the same data in different runs due to their random nature. For reproducibility, set a random seed using `set.seed()`{.r} before calling `ci_boot()`{.r}.
+
+
+## CI for Single-Variable Statistics
+
+Single-variable statistics need only one variable to be computed. Examples are mean, median, SD, etc.
+
+**Median CI**
+
+```{r}
+set.seed(123) # For reproducible results
+
+# Median petal length for all flowers
+iris |>
+  ci_boot(Petal.Length, FUN = median, R = 1000, bci.method = "bca")
+```
+
+**Median CI by Group**
+
+```{r}
+set.seed(456)
+
+# Median by species
+iris |>
+  group_by(Species) |>
+  ci_boot(Petal.Length, FUN = median, R = 1000, bci.method = "bca")
+```
+
+**Standard Deviation CI**
+
+**When to use**: CIs of variability measures (SD, IQR, etc.) should be used when you want to know how consistent or variable your data is.
+
+```{r}
+set.seed(789)
+
+# How variable is petal length?
+iris |>
+  ci_boot(Petal.Length, FUN = sd, R = 1000, bci.method = "bca")
+```
+
+## CIs for Variable-Pair Statistics
+
+Variable-pair statistics need two variables to be computed. Examples are correlation coefficients (Pearson, Spearman, Kendall), Cramér's V, Goodman-Kruskal Tau and Lambda, etc.
+
+Pearson correlation measures the strength of linear relationship between two continuous variables:
+
+```{r}
+set.seed(101)
+
+# Relationship between petal length and width for each species
+iris |>
+  group_by(Species) |>
+  ci_boot(
+    Petal.Length, Petal.Width,
+    FUN = cor, method = "pearson",
+    R = 1000, bci.method = "bca"
+  )
+```
+
+**Note 1**: `method` is an argument of function `cor()`{.r}.  
+**Note 2**: If the CI does not include 0, there is likely a real correlation.
+
+
+Spearman correlation measures rank (monotonic non-linear) relationship between two continuous variables:
+
+```{r}
+set.seed(101)
+
+# Correlation between petal length and width
+iris |>
+  group_by(Species) |>
+  ci_boot(
+    Petal.Length, Petal.Width,
+    FUN = cor, method = "spearman",
+    R = 1000, bci.method = "bca"
+  )
+```
+
+**Results**: All three species show strong positive correlations.
+
+
+## Bootstrap Methods: When to Use Which
+
+The package offers several bootstrap methods.
+They are set using the `bci.method` argument.
+Different methods can give slightly different results.
+Let's look at two examples:
+
+- `bca` -- **Bias-Corrected and Accelerated** (BCa) bootstrap CI (recommended default)
+- `perc` -- **Percentile** bootstrap CI
+
+
+```{r}
+set.seed(222)
+
+# Percentile method (simpler, more robust)
+iris |> ci_boot(Petal.Length, FUN = median, R = 1000, bci.method = "perc")
+
+# BCa method (often more accurate)
+iris |> ci_boot(Petal.Length, FUN = median, R = 1000, bci.method = "bca")
+```
+
+
+# Learning Exercises
+
+## Exercise 1: Understanding Confidence Levels
+
+```{r}
+# Same data, different confidence levels
+ci_mean_t_stat(mean_ = 75, sd_ = 10, n = 25, conf.level = 0.90)
+ci_mean_t_stat(mean_ = 75, sd_ = 10, n = 25, conf.level = 0.95)
+ci_mean_t_stat(mean_ = 75, sd_ = 10, n = 25, conf.level = 0.99)
+```
+
+**Questions:**
+
+1. What happens to interval width as confidence level increases? Why?
+
+## Exercise 2: Sample Size Effect
+
+```{r}
+# Effect of sample size on precision
+ci_mean_t_stat(mean_ = 85, sd_ = 15, n = c(10, 25, 50, 100, 400))
+```
+
+**Questions**:
+
+1. Which sample size gives the most precise estimate?
+2. Is the improvement from n = 25 to n = 50 the same as from n = 50 to n = 100?
+
+## Exercise 3: Overlapping vs Non-overlapping Intervals
+
+```{r}
+# Two treatment methods
+ci_mean_t_stat(
+  mean_ = c(78, 82),
+  sd_ = c(8, 7),
+  n = c(30, 28),
+  group = c("Treatment A", "Treatment B")
+)
+```
+
+**Questions:**
+
+1. Do the confidence intervals overlap? What might this suggest about the difference between treatments?
+
+## Exercise 4: Number of Bootstrap Resamples
+
+In this exercise, we investigate how the number of bootstrap resamples (`R`) affects both computation time and the precision of confidence intervals. We'll run the same bootstrap analysis multiple times with different values of `R` (500, 1000, 3000, 5000, and 9999) to observe patterns in:
+
+- **Computation time**: How long does it take to calculate CIs?
+- **CI width**: How precise are the estimates?
+- **Stability**: How much do results vary between runs with the same `R`?
+
+To avoid repetitive code, we create a helper function `simulate_ci()`{.r} that:
+
+1. Runs `ci_boot()`{.r} with a specified number of resamples (`R`)
+2. Measures the elapsed computation time using `system.time()`{.r}
+3. Returns results with additional information (CI width, `R` value, computation time)
+
+```{r}
+# Function to run bootstrap CI and measure computation time
+simulate_ci <- function(R) {
+  # system.time() tracks how long the code takes to run
+  time_s <- system.time(
+    result <- iris |> ci_boot(Petal.Length, FUN = mean, R = R, bci.method = "bca")
+  )
+
+  # Add useful metrics to the results:
+  # - diff: CI width (difference between upper and lower bounds)
+  # - R: number of resamples used
+  # - time_s: elapsed computation time in seconds
+  result <- result |>
+    mutate(
+      diff = (upr.ci - lwr.ci) |> round(digits = 3),
+      upr.ci = upr.ci |> round(digits = 3),
+      lwr.ci = lwr.ci |> round(digits = 3),
+      time_s = time_s[3], # [3] extracts elapsed time (wall-clock time),
+      R = R,
+    )
+
+  return(result)
+}
+```
+
+Now we run the simulation multiple times (5 replications) for each value of `R` to see how results vary:
+
+```{r}
+# Run simulation with different numbers of bootstrap resamples
+# Each R value is tested 5 times to assess variability
+
+set.seed(307)
+results <- bind_rows(
+  # 500 resamples
+  simulate_ci(R = 500),
+  simulate_ci(R = 500),
+  simulate_ci(R = 500),
+  simulate_ci(R = 500),
+  simulate_ci(R = 500),
+  # 1000 resamples
+  simulate_ci(R = 1000),
+  simulate_ci(R = 1000),
+  simulate_ci(R = 1000),
+  simulate_ci(R = 1000),
+  simulate_ci(R = 1000),
+  # 3000 resamples
+  simulate_ci(R = 3000),
+  simulate_ci(R = 3000),
+  simulate_ci(R = 3000),
+  simulate_ci(R = 3000),
+  simulate_ci(R = 3000),
+  # 5000 resamples
+  simulate_ci(R = 5000),
+  simulate_ci(R = 5000),
+  simulate_ci(R = 5000),
+  simulate_ci(R = 5000),
+  simulate_ci(R = 5000),
+  # 9999 resamples
+  simulate_ci(R = 9999),
+  simulate_ci(R = 9999),
+  simulate_ci(R = 9999),
+  simulate_ci(R = 9999),
+  simulate_ci(R = 9999),
+)
+
+print(results, n = Inf)
+```
+
+```{r}
+# Summary by number of replications (R)
+summary_of_results <-
+  results |>
+  group_by(R) |>
+  summarize(
+    diff_mean =   mean(diff) |> round(digits = 3),
+    diff_sd   =     sd(diff) |> round(digits = 3),
+    time_mean = mean(time_s) |> round(digits = 2),
+    time_sd   =   sd(time_s) |> round(digits = 2)
+  )
+
+summary_of_results
+```
+
+**Questions:**
+
+1. How does increasing `R` affect computation time?
+2. How does increasing `R` affect the (a) width and (b) stability of the confidence intervals?
